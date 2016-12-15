@@ -11,7 +11,7 @@ var appEnv		=	{"appPath": __dirname, "appViews":  __dirname + "/views/"};
 // Import Routers.
 require('./router')(app, appEnv);
 
-var srv = app.listen(8000, function() {
+var srv = app.listen(1401, function() {
 	console.log('Listening on '+process.env.PORT)
 })
 
