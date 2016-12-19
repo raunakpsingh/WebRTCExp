@@ -10,27 +10,32 @@
     var ended = false;
     var name = "";
     var mediaConnection = null;
+    var destId = "";
+    var mediaStream;
+
+    $('#second_box').css("visibility", "initial");
 
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
     window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
 
     var constraints = { video: true, audio: true };
-    navigator.getUserMedia(constraints, (function(stream) {
-            PlayVideo(stream);
-            //PlayAudio(stream);
+
+    navigator.mediaDevices.getUserMedia(constraints, (function(myStream) {
+            mediaStream = myStream;
+
+            PlayVideo(mediaStream);
         }),
         (function(err) {
-            console.log("The following error occured: " + err.name);
+            console.log(err);
         }));
 
     function PlayVideo(stream) {
         video = document.querySelector('video');
+        console.log(stream);
         video.src = window.URL.createObjectURL(stream);
-        mediaStream = stream;
         video.onloadedmetadata = function(e) {
             video.play();
         }
-        $('#second_box').css("visibility", "initial");
     };
 
     // $('#proceed').on('click', function(event) {
@@ -66,6 +71,7 @@
 
     function PlayVideo2(stream) {
         console.log("stream received");
+        console.log(stream);
         video = document.querySelector('video2');
         video.src = window.URL.createObjectURL(stream);
         video.onloadedmetadata = function(e) {
@@ -109,27 +115,34 @@
             begin();
         });
         peer.on('call', function(recdConn) {
-            mediaConnection = recdConn;
-            console.log("call received");
-            console.log(mediaConnection.type);
-            // Answer the call, providing our mediaStream
-            setUpMediaConnection(mediaConnection);
-            console.log(mediaStream);
-            mediaConnection.answer([mediaStream]);
-            mediaConnection.on('stream', PlayVideo2);
-            mediaConnection.on('close', function() {
-                console.log("Closed MediaStream");
-            });
-            mediaConnection.on("error", function() {
-                console.log("error occured");
-            });
+            navigator.getUserMedia(constraints, (function(stream) {
+                    mediaConnection = recdConn;
+                    console.log(stream);
+                    console.log(mediaConnection.type);
+                    PlayVideo2(mediaConnection);
+                    // Answer the call, providing our mediaStream
+                    setUpMediaConnection(mediaConnection);
+                    mediaConnection.answer([mediaStream]);
+                    mediaConnection.on('stream', PlayVideo2);
+                    mediaConnection.on('close', function() {
+                        console.log("Closed MediaStream");
+                    });
+                    mediaConnection.on("error", function() {
+                        console.log("error occured");
+                    });
+                }),
+                (function(err) {
+                    console.log("The following error occured: " + err.name);
+                }));
         });
     };
 
     function join() {
         initialize();
-        peer.on('open', function() {
-            var destId = prompt("Opponent's peer ID:")
+        peer.on('open', function(id) {
+            console.log(id);
+            var myID = id;
+            destId = prompt("Opponent's peer ID:")
             console.log(destId);
             secPeerId = destId;
             conn = peer.connect(destId, {
@@ -145,15 +158,20 @@
     };
 
     function call() {
-        console.log(mediaStream);
-        console.log("Not My Peer Id" + secPeerId);
-        var call = peer.call(peerId, mediaStream);
+        console.log("Not My Peer Id " + destId);
+        
+        console.log("My Id " + secPeerId);
+        
+        var call = peer.call(destId, mediaStream);
+
         call.on('stream', function(stream) {
             console.log("Here");
             // `stream` is the MediaStream of the remote peer.
             // Here you'd add it to an HTML video/canvas element.
             PlayVideo2(stream);
         });
+        //PlayAudio(stream);
+
     };
 
     $('a[href="#start"]').on('click', function(event) {
