@@ -6,20 +6,17 @@
 </head>
 
 <body>
-	<div id="first_box">
-		<span>Enter Your Name:</span>
-		<input type="text" id="name" />
-		<button id="proceed">Proceed</button>
-	</div>
-    <div id="second_box">
-        <a href="#join">Join</a>
-        <a href="#start">Start</a>
-    </div>
-    <div id="conversation_box">
-        <input type="text" id="message" />
-        <div id="conversation">
+    <div id="first_box">
+        <video id="camera" width="640" height="480" autoplay style="display: inline;"></video>
+        <div id="video">
         </div>
-        <button id="enter">Send</button>
+        <div id="video2">
+        </div>
+    </div>
+    <div id="second_box">
+    	<a href="#start" id="Start">Start</a>
+    	<a href="#join" id="Join">Join</a>
+    	<a href="#call" id="Call">Call</a>
     </div>
 </body>
 <script type="text/javascript" src="/js/peer.js"></script>

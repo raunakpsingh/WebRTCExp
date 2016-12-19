@@ -552,7 +552,7 @@ Negotiator._setupListeners = function(connection, pc, pc_id) {
   pc.onnegotiationneeded = function() {
     util.log('`negotiationneeded` triggered');
     if (pc.signalingState == 'stable') {
-      Negotiator._makeOffer(connection);
+      setTimeout(function(ev){ Negotiator._makeOffer(connection); }, 1);
     } else {
       util.log('onnegotiationneeded triggered when not stable. Is another connection being established?');
     }
@@ -1411,7 +1411,8 @@ Socket.prototype.close = function() {
 module.exports = Socket;
 
 },{"./util":8,"eventemitter3":9}],8:[function(require,module,exports){
-var defaultConfig = {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
+var defaultConfig = {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' },
+                    { url: 'turn:numb.viagenie.ca', credential: 'muazkh', username: 'webrtc@live.com' }]};
 var dataCount = 1;
 
 var BinaryPack = require('js-binarypack');
