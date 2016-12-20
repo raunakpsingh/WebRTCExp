@@ -11,23 +11,27 @@
     var name = "";
     var mediaConnection = null;
     var destId = "";
-    var mediaStream;
 
     $('#second_box').css("visibility", "initial");
 
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
     window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
 
     var constraints = { video: true, audio: true };
+    if (navigator.getUserMedia) {
+        navigator.getUserMedia({ video: true, audio: true }, getMediaSuccess, getMediaError);
+    } else {
+        alert('getUserMedia not supported.');
+    }
 
-    navigator.mediaDevices.getUserMedia(constraints, (function(myStream) {
-            mediaStream = myStream;
+    function getMediaSuccess(mediaStream) {
+        myStream = mediaStream;
+        PlayVideo(mediaStream);
+    };
 
-            PlayVideo(mediaStream);
-        }),
-        (function(err) {
-            console.log(err);
-        }));
+    function getMediaError() {
+
+    };
 
     function PlayVideo(stream) {
         video = document.querySelector('video');
@@ -72,10 +76,10 @@
     function PlayVideo2(stream) {
         console.log("stream received");
         console.log(stream);
-        video = document.querySelector('video2');
-        video.src = window.URL.createObjectURL(stream);
-        video.onloadedmetadata = function(e) {
-            video.play();
+        remoteStream = document.getElementById('remoteVideo');
+        remoteStream.src = window.URL.createObjectURL(stream);
+        remoteStream.onloadedmetadata = function(e) {
+            remoteStream.play();
         };
     };
 
@@ -115,25 +119,24 @@
             begin();
         });
         peer.on('call', function(recdConn) {
-            navigator.getUserMedia(constraints, (function(stream) {
-                    mediaConnection = recdConn;
-                    console.log(stream);
-                    console.log(mediaConnection.type);
-                    PlayVideo2(mediaConnection);
-                    // Answer the call, providing our mediaStream
-                    setUpMediaConnection(mediaConnection);
-                    mediaConnection.answer([mediaStream]);
-                    mediaConnection.on('stream', PlayVideo2);
-                    mediaConnection.on('close', function() {
-                        console.log("Closed MediaStream");
-                    });
-                    mediaConnection.on("error", function() {
-                        console.log("error occured");
-                    });
-                }),
-                (function(err) {
-                    console.log("The following error occured: " + err.name);
-                }));
+            recdConn.answer(myStream);
+            recdConn.on("stream",function(stream){
+                PlayVideo2(stream);
+            });
+            mediaConnection = recdConn;
+            console.log(mediaConnection.type);
+            PlayVideo2(mediaConnection);
+            // Answer the call, providing our mediaStream
+            setUpMediaConnection(mediaConnection);
+            mediaConnection.answer([myStream]);
+            mediaConnection.on('stream', PlayVideo2);
+            mediaConnection.on('close', function() {
+                console.log("Closed MediaStream");
+            });
+            mediaConnection.on("error", function() {
+                console.log("error occured");
+            });
+
         });
     };
 
@@ -141,28 +144,25 @@
         initialize();
         peer.on('open', function(id) {
             console.log(id);
-            var myID = id;
+            secPeerId = id;
             destId = prompt("Opponent's peer ID:")
             console.log(destId);
-            secPeerId = destId;
             conn = peer.connect(destId, {
                 reliable: true
             });
             conn.on('open', function() {
-                opponent.peerId = destId;
-                $('#conversation_box').css("visibility", "initial");
-                turn = false;
+
                 begin();
             });
         });
     };
 
-    function call() {
+    function callPeer() {
         console.log("Not My Peer Id " + destId);
-        
+
         console.log("My Id " + secPeerId);
-        
-        var call = peer.call(destId, mediaStream);
+
+        var call = peer.call(destId, myStream);
 
         call.on('stream', function(stream) {
             console.log("Here");
@@ -185,7 +185,7 @@
     $('a[href="#call"]').on('click', function(event) {
         event.preventDefault();
         console.log("Clicke");
-        call();
+        callPeer();
     });
 
 })()
