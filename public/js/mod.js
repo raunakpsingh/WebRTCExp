@@ -1,5 +1,5 @@
 (function() {
-    $('#second_box').css("visibility", "hidden");
+    $('#conversation_box').css("visibility", "hidden");
 
     var peerId = null;
     var conn = null;
@@ -72,6 +72,8 @@
     function begin() {
         conn.on('data', function(data) {
             console.log(data);
+            destId = data[0];
+            $("#conversation").append("<div >Opponent's message: " + data[1] + '</div>');
         });
         conn.on('close', function() {
             alert(name + " has ended the conversation");
@@ -91,15 +93,6 @@
         };
     };
 
-    $('#enter').on('click', function(event) {
-        event.preventDefault();
-        console.log("Entered");
-        var data = $("#message").val();
-        console.log(data);
-        conn.send([name, data]);
-        $("#conversation").append("<div > You: " + data + '</div>');
-    });
-
     function initialize() {
         peer = new Peer('', {
             host: location.hostname,
@@ -110,6 +103,7 @@
         peer.on('open', function(id) {
             console.log(id);
             secPeerId = id;
+            $("#details_box").append("<div > Your peer id is: " + secPeerId + '</div>');
         });
         peer.on('error', function(err) {
             alert(err);
@@ -124,6 +118,7 @@
                 return;
             }
             conn = c;
+            $('#conversation_box').css("visibility", "initial");
             begin();
         });
         peer.on('call', function(recdConn) {
@@ -153,13 +148,15 @@
         peer.on('open', function(id) {
             console.log(id);
             secPeerId = id;
-            destId = prompt("Opponent's peer ID:")
+            destId = prompt("Opponent's peer ID:");
+            $("#details_box").append("<div > Your opponent's peer id is: " + destId + '</div>');
             console.log(destId);
             conn = peer.connect(destId, {
                 reliable: true
             });
             conn.on('open', function() {
-
+                console.log(":Hell");
+                $('#conversation_box').css("visibility", "initial");
                 begin();
             });
         });
@@ -196,4 +193,24 @@
         callPeer();
     });
 
+    $('#enter').on('click', function(event) {
+        sendMessage(event);
+    });
+
+    $('#message').on('keypress', function(e) {
+        if (e.which === 13) {
+            sendMessage(e);
+        }
+    });
+
+    function sendMessage(event) {
+        event.preventDefault();
+        console.log("Entered");
+        var data = $("#message").val();
+        console.log(data);
+        name = secPeerId;
+        conn.send([name, data]);
+        $("#conversation").append("<div > You: " + data + '</div>');
+        $("#message").val("");
+    }
 })()

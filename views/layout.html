@@ -7,13 +7,21 @@
 
 <body>
     <div id="first_box">
+        <div id="details_box">
+        </div>
         <video id="camera" width="320" height="240" autoplay muted></video>
         <video id="remoteVideo" width="640" height="480" autoplay></video>
+        <div id="conversation_box">
+            <input type="text" id="message" />
+            <button id="enter">Send</button>
+            <div id="conversation">
+            </div>
+        </div>
     </div>
     <div id="second_box">
-    	<a href="#start" id="Start">Start</a>
-    	<a href="#join" id="Join">Join</a>
-    	<a href="#call" id="Call">Call</a>
+        <a href="#start" id="Start">Start</a>
+        <a href="#join" id="Join">Join</a>
+        <a href="#call" id="Call">Call</a>
     </div>
 </body>
 <script type="text/javascript" src="/js/peer.js"></script>
