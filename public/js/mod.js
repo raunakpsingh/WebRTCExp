@@ -26,6 +26,14 @@
 
     function getMediaSuccess(mediaStream) {
         myStream = mediaStream;
+        // var audioContext = new AudioContext; //or webkitAudioContext
+        // var source = audioContext.createMediaStreamSource(mediaStream);
+
+        // var volume = audioContext.createGain();
+        // source.connect(volume);
+        // volume.connect(audioContext.destination);
+        // volume.gain.value = 0; //turn off the speakers
+
         PlayVideo(mediaStream);
     };
 
@@ -120,7 +128,7 @@
         });
         peer.on('call', function(recdConn) {
             recdConn.answer(myStream);
-            recdConn.on("stream",function(stream){
+            recdConn.on("stream", function(stream) {
                 PlayVideo2(stream);
             });
             mediaConnection = recdConn;
