@@ -93,7 +93,7 @@
         };
     };
 
-    function initialize() {
+    // function initialize() {
         peer = new Peer('', {
             host: location.hostname,
             port: location.port || (location.protocol === 'https:' ? 443 : 80),
@@ -108,19 +108,20 @@
         peer.on('error', function(err) {
             alert(err);
         });
-    };
-
-    function start() {
-        initialize();
         peer.on('connection', function(c) {
             if (conn) {
                 c.close();
                 return;
             }
             conn = c;
+            console.log(c);
             $('#conversation_box').css("visibility", "initial");
             begin();
         });
+    // };
+
+    function start() {
+        initialize();
         peer.on('call', function(recdConn) {
             recdConn.answer(myStream);
             recdConn.on("stream", function(stream) {
