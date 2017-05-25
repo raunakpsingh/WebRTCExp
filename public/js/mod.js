@@ -93,7 +93,7 @@
         };
     };
 
-    // function initialize() {
+    function initialize() {
         peer = new Peer('', {
             host: location.hostname,
             port: location.port || (location.protocol === 'https:' ? 443 : 80),
@@ -118,7 +118,7 @@
             $('#conversation_box').css("visibility", "initial");
             begin();
         });
-    // };
+    };
 
     function start() {
         initialize();
