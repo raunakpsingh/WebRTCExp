@@ -73,6 +73,7 @@
         conn.on('data', function(data) {
             console.log(data);
             destId = data[0];
+            $("#details_box").append("<div > Your opponent's peer id is: " + destId + '</div>');
             $("#conversation").append("<div >Opponent's message: " + data[1] + '</div>');
         });
         conn.on('close', function() {
@@ -118,10 +119,6 @@
             $('#conversation_box').css("visibility", "initial");
             begin();
         });
-    };
-
-    function start() {
-        initialize();
         peer.on('call', function(recdConn) {
             recdConn.answer(myStream);
             recdConn.on("stream", function(stream) {
@@ -129,19 +126,24 @@
             });
             mediaConnection = recdConn;
             console.log(mediaConnection.type);
-            PlayVideo2(mediaConnection);
+            // PlayVideo2(mediaConnection);
             // Answer the call, providing our mediaStream
-            setUpMediaConnection(mediaConnection);
-            mediaConnection.answer([myStream]);
-            mediaConnection.on('stream', PlayVideo2);
-            mediaConnection.on('close', function() {
+            // setUpMediaConnection(mediaConnection);
+            // mediaConnection.answer([myStream]);
+            // mediaConnection.on('stream', PlayVideo2);
+            recdConn.on('close', function() {
                 console.log("Closed MediaStream");
             });
-            mediaConnection.on("error", function() {
+            recdConn.on("error", function() {
                 console.log("error occured");
             });
 
         });
+    };
+
+    function start() {
+        initialize();
+        
     };
 
     function join() {
@@ -210,7 +212,7 @@
         var data = $("#message").val();
         console.log(data);
         name = secPeerId;
-        conn.send([name, data]);
+        conn.send([secPeerId, data]);
         $("#conversation").append("<div > You: " + data + '</div>');
         $("#message").val("");
     }
